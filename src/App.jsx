@@ -30,16 +30,13 @@ function App() {
   const [yInitial, setYInitial] = useState(null)
   const [yFinal, setYFinal] = useState(null)
   const [diffInY, setDiffInY] = useState(null)
-  const [x, setX] = useState(null)
 
   const setCurrentOrbit = (n) => {
     if (nInitial === n) {
       setNInitial(null)
-      setYInitial(null)
     }
     else if (nFinal === n) {
       setNFinal(null)
-      setYFinal(null)
     }
     else if (!nInitial) {
       setNInitial(n)
@@ -81,8 +78,18 @@ function App() {
     setSpectralLine('')
   }
 
+  const voidAll = () => {
+    voidCalculations()
+    setNInitial(null)
+    setNFinal(null)
+    setYInitial(null)
+    setYFinal(null)
+    setDiffInY(null)
+  }
+
   const onSubmitModalSpectralLine = (e) => {
     e.preventDefault()
+    
     let text = e.target.elements.line.value
     let match = text.match(/\d° línea de (.+)/)
     let word = ''
@@ -92,14 +99,12 @@ function App() {
     }
 
     let service = new spectroscopyService()
-    let nFinal = service.getNFinal(word)
+    let currentNFinal = service.getNFinal(word)
     
     if (!match) {
       alert('Introduce un dato correcto')
       return
     }
-    
-    setNFinal(nFinal)
 
     match = text.match(/(\d)° línea de/)
     word = ''
@@ -114,12 +119,9 @@ function App() {
 
     let num = parseInt(word)
 
-    setNInitial(nFinal + num)
+    setNFinal(currentNFinal)
+    setNInitial(currentNFinal + num)
     closeModalSpectralLine()
-  }
-
-  const handleAnimation = () => {
-    console.log(animationInitial, animationFinal);
   }
 
   useEffect(() => {
@@ -143,6 +145,12 @@ function App() {
       setDiffInY(null)
     }
   }, [yInitial, yFinal])
+
+  useEffect(() => {
+    if (isOpenModalSpectralLine) {
+      voidAll()
+    }
+  }, [isOpenModalSpectralLine])
 
   return (
     <>
@@ -197,7 +205,7 @@ function App() {
           </div>
         </div>
         
-        <Modal isOpen={isOpenModalInfo} onClose={closeModalInfo} title={'Información del equipo y del simulador'}>
+        <Modal4XL isOpen={isOpenModalInfo} onClose={closeModalInfo} title={'Información del equipo y del simulador'}>
           <div className='px-2'>
             <p>Equipo #6. Física IV Ordinaria No Escolarizada. Tema: El Átomo. Integrantes:</p>
             <br />
@@ -227,14 +235,16 @@ function App() {
             <br />
             <p>Además que todas las unidades utilizadas están en el Sistema Internacional de Unidades (SI). Así como que <b>solo es posible visualizarlo correctamente desde una PC o Laptop.</b> Pero esperamos que con futuras actualizaciones, el simulador tenga muchas más características y posibilidades.</p>
           </div>
-        </Modal>
+        </Modal4XL>
 
         <Modal isOpen={isOpenModalAtomicNumber} onClose={closeModalAtomicNumber} title={'Número atómico (Z)'}>
           <span>Dado que durante la lección se abordó el uso exclusivo de un átomo de hidrógeno, esta circunstancia justifica que el número atómico (Z) sea invariablemente igual a 1.</span>
         </Modal>
 
         <Modal isOpen={isOpenModalSpectralLine} onClose={closeModalSpectralLine} title={'Linea espectral emitida'}>
+          <p>Nótese que al abrir esta ventana, toda la información se vaciará.</p>
           <p>* Sigue el sig. formato para escribir la línea espectral emitida: "3° línea de Paschen", "2° línea de Bracket", etc.</p>
+          <p>* Respeta mayúsculas, minúsculas y el acento en "l<b>í</b>nea"</p>
           <br />
           <form action="#" class="" onSubmit={onSubmitModalSpectralLine}>
             <div class="flex flex-col gap-4 mb-4 grid-cols-2 justify-center">

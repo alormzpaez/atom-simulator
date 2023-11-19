@@ -26,11 +26,9 @@ const Orbit = ({n, actionOnClick, currentNInitial, currentNFinal, diffInY = null
 
     const handleSetOrbitOrder = () => {
         if (currentNInitial === n) {
-            setIsClicked(true)
             setOrbitOrder('I')
         }
         else if (currentNFinal === n) {
-            setIsClicked(true)
             setOrbitOrder('F')
         }
         else if (
@@ -47,8 +45,18 @@ const Orbit = ({n, actionOnClick, currentNInitial, currentNFinal, diffInY = null
         }
     }
 
+    const handleSetIsClicked = () => {
+        if (currentNInitial === n || currentNFinal === n) {
+            setIsClicked(true)
+        }
+        else {
+            setIsClicked(false)
+        }
+    }
+
     useEffect(() => {
         handleSetOrbitOrder()
+        handleSetIsClicked()
     }, [currentNInitial, currentNFinal])
 
     return (
@@ -76,7 +84,7 @@ const Orbit = ({n, actionOnClick, currentNInitial, currentNFinal, diffInY = null
             }
 
             {
-                currentNInitial === n && diffInY !== null ?
+                currentNInitial === n && currentNFinal !== null && diffInY !== null ?
                     <div className={'flex absolute justify-center w-full group-hover:flex'}>
                         <AnimatedSphere to={diffInY}/>
                     </div>
